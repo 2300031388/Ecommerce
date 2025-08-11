@@ -1,0 +1,54 @@
+name: CI/CD React App
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run tests
+        run: |
+          cd frontend
+          npm test --if-present
+
+      - name: Build the project
+        run: |
+          cd frontend
+          npm run build
+
+      # Configure Git identity
+      - name: Configure Git
+        run: |
+          git config --global user.name "2300031388"
+          git config --global user.email "2300031388@kluniversity.in"
+
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "2300031388"
+          git config --global user.email "2300031388@kluniversity.in"
+          npm install -g gh-pages
+          gh-pages -d frontend/dist -r https://x-access-token:${GITHUB_TOKEN}@github.com/2300031388/Ecommerce/
